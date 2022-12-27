@@ -1,15 +1,45 @@
 import 'package:flutter/material.dart';
-import '../models/Item.dart';
+import 'package:flutter_uas/database/dbhelper.dart';
+import 'package:flutter_uas/models/biodata.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class FormPage extends StatefulWidget {
+  final Biodata? biodata;
+
+  const FormPage({super.key, this.biodata});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<FormPage> createState() => _FormPageState();
 }
 
-class _HomePageState extends State<HomePage> {
-  // Variable/State untuk mengambil tanggal
+class _FormPageState extends State<FormPage> {
+  DbHelper db = DbHelper();
+
+  TextEditingController? name;
+  TextEditingController? nim;
+  TextEditingController? alamat;
+  TextEditingController? jenisKelamin;
+  TextEditingController? date;
+
+  @override
+  void initState() {
+    name = TextEditingController(
+        text: widget.biodata == null ? '' : widget.biodata!.name);
+
+    nim = TextEditingController(
+        text: widget.biodata == null ? '' : widget.biodata!.nim);
+
+    alamat = TextEditingController(
+        text: widget.biodata == null ? '' : widget.biodata!.alamat);
+
+    jenisKelamin = TextEditingController(
+        text: widget.biodata == null ? '' : widget.biodata!.jenisKelamin);
+    date = TextEditingController(
+        text: widget.biodata == null ? '' : widget.biodata!.date);
+
+    super.initState();
+  }
+
+// Variable/State untuk mengambil tanggal
   DateTime selectedDate = DateTime.now();
   // Initial SelectDate FLutter
   Future<Null> _selectDate(BuildContext context) async {
@@ -25,20 +55,37 @@ class _HomePageState extends State<HomePage> {
       });
   }
 
-  final inputNim = TextEditingController();
-  final inputNama = TextEditingController();
-  final inputAlamat = TextEditingController();
-  final inputJk = TextEditingController();
-  final test = TextEditingController();
+  Future<void> upsertBiodata() async {
+    if (widget.biodata != null) {
+      //update
+      await db.updateBiodata(Biodata(
+          id: widget.biodata!.id,
+          name: name!.text,
+          nim: nim!.text,
+          alamat: alamat!.text,
+          jenisKelamin: jenisKelamin!.text,
+          date: "${selectedDate.toLocal()}".split(' ')[0].toString()));
+      Navigator.pop(context, 'update');
+    } else {
+      //insert
+      await db.saveBiodata(Biodata(
+          name: name!.text,
+          nim: nim!.text,
+          alamat: alamat!.text,
+          jenisKelamin: jenisKelamin!.text,
+          date: "${selectedDate.toLocal()}".split(' ')[0].toString()));
+      Navigator.pop(context, 'save');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         appBar: AppBar(
-          title: Text(
-            "Homepage",
-            style: TextStyle(color: Colors.white),
+          title: Center(
+            child: Text("Tambah Data"),
           ),
         ),
         body: ListView(children: [
@@ -56,7 +103,7 @@ class _HomePageState extends State<HomePage> {
                 Container(
                   margin: EdgeInsets.only(bottom: 20),
                   child: TextFormField(
-                      controller: inputNim,
+                      controller: nim,
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(
                         hintText: "Masukkan Nim",
@@ -68,7 +115,7 @@ class _HomePageState extends State<HomePage> {
                 Container(
                   margin: EdgeInsets.only(bottom: 20),
                   child: TextFormField(
-                      controller: inputNama,
+                      controller: name,
                       keyboardType: TextInputType.text,
                       decoration: InputDecoration(
                         hintText: "Masukkan Nama",
@@ -80,7 +127,7 @@ class _HomePageState extends State<HomePage> {
                 Container(
                   margin: EdgeInsets.only(bottom: 20),
                   child: TextFormField(
-                      controller: inputAlamat,
+                      controller: alamat,
                       keyboardType: TextInputType.text,
                       decoration: InputDecoration(
                         hintText: "Masukkan Alamat",
@@ -92,7 +139,7 @@ class _HomePageState extends State<HomePage> {
                 Container(
                   margin: EdgeInsets.only(bottom: 20),
                   child: TextFormField(
-                      controller: inputJk,
+                      controller: jenisKelamin,
                       keyboardType: TextInputType.text,
                       decoration: InputDecoration(
                         hintText: "Masukkan Jenis Kelamin",
@@ -128,9 +175,9 @@ class _HomePageState extends State<HomePage> {
                     )),
                 Container(
                   child: ElevatedButton(
-                    child: Text("Simpan"),
+                    child: Text("Tambah Data"),
                     onPressed: () {
-                      test.text = inputNim.text.toString();
+                      upsertBiodata();
                     },
                   ),
                 )
@@ -138,18 +185,6 @@ class _HomePageState extends State<HomePage> {
             ),
           )
         ]),
-        floatingActionButton: FloatingActionButton(
-          child: Icon(Icons.skip_next),
-          onPressed: () {
-            Navigator.pushNamed(context, '/item',
-                arguments: Item(
-                    inputNim.text.toString(),
-                    inputNama.text.toString(),
-                    inputAlamat.text.toString(),
-                    inputJk.text.toString(),
-                    "${selectedDate.toLocal()}".split(' ')[0]));
-          },
-        ),
       ),
     );
   }

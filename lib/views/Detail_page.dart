@@ -1,15 +1,26 @@
 import 'package:flutter/material.dart';
-import '../models/Item.dart';
+import 'package:flutter_uas/database/dbhelper.dart';
+import 'package:flutter_uas/models/biodata.dart';
+import 'package:flutter_uas/views/List_page.dart';
 
-class ItemPage extends StatelessWidget {
+class DetailPage extends StatefulWidget {
+  final Biodata biodata;
+  const DetailPage({Key? key, required this.biodata}) : super(key: key);
+
+  @override
+  State<DetailPage> createState() => _DetailPageState();
+}
+
+class _DetailPageState extends State<DetailPage> {
   @override
   Widget build(BuildContext context) {
-    final text = ModalRoute.of(context)!.settings.arguments as Item;
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         appBar: AppBar(
-          title: Text("Detail Page"),
+          title: Text("Detail Biodata"),
+          centerTitle: true,
+          automaticallyImplyLeading: false,
         ),
         body: Container(
           padding: EdgeInsets.symmetric(vertical: 50, horizontal: 25),
@@ -38,38 +49,45 @@ class ItemPage extends StatelessWidget {
               ),
               Container(
                 margin: EdgeInsets.only(bottom: 15),
-                child:
-                    Text("Nim : " + text.nim, style: TextStyle(fontSize: 20)),
-              ),
-              Container(
-                margin: EdgeInsets.only(bottom: 15),
-                child:
-                    Text("Nama : " + text.nama, style: TextStyle(fontSize: 20)),
-              ),
-              Container(
-                margin: EdgeInsets.only(bottom: 15),
-                child: Text("Alamat : " + text.alamat,
+                child: Text("Nim : " + widget.biodata.nim!.toString(),
                     style: TextStyle(fontSize: 20)),
               ),
               Container(
                 margin: EdgeInsets.only(bottom: 15),
-                child: Text("Jenis kelamin : " + text.jeniskelamin,
+                child: Text("Nama : " + widget.biodata.name!.toString(),
                     style: TextStyle(fontSize: 20)),
               ),
               Container(
                 margin: EdgeInsets.only(bottom: 15),
-                child: Text("Tanggal Lahir : " + text.tanggallahir,
+                child: Text("Alamat : " + widget.biodata.alamat!.toString(),
+                    style: TextStyle(fontSize: 20)),
+              ),
+              Container(
+                margin: EdgeInsets.only(bottom: 15),
+                child: Text(
+                    "Jenis kelamin : " +
+                        widget.biodata.jenisKelamin!.toString(),
+                    style: TextStyle(fontSize: 20)),
+              ),
+              Container(
+                margin: EdgeInsets.only(bottom: 15),
+                child: Text(
+                    "Tanggal Lahir : " + widget.biodata.date!.toString(),
                     style: TextStyle(fontSize: 20)),
               ),
             ],
           ),
         ),
         floatingActionButton: FloatingActionButton(
-          child: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pushNamed(context, '/');
-          },
-        ),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) {
+                  return ListPage();
+                }),
+              );
+            },
+            child: Icon(Icons.keyboard_arrow_left)),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       ),
     );
   }
